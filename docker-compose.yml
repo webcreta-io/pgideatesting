@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  pgidea:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+      - postgres
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: pgidea
+      POSTGRES_PASSWORD: pgidea123
+      POSTGRES_DB: pgidea
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  postgres_data:
