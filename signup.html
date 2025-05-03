@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile | PGidea</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FFF9EB;
+        }
+        .profile-pic-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+        }
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #F4C542;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: #F4C542;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .upload-btn:hover {
+            background-color: #E6B73A;
+            transform: scale(1.1);
+        }
+        .input-field:focus {
+            border-color: #F4C542;
+            box-shadow: 0 0 0 3px rgba(244, 197, 66, 0.2);
+            outline: none;
+        }
+        .submit-btn {
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(244, 197, 66, 0.25);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full animate-fadeInUp">
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="p-8 pb-4 text-center">
+                <h1 class="text-3xl font-bold text-[#4A2E1D] flex items-center justify-center">
+                    <span class="mr-2">👤</span> Let's quickly set up your profile!
+                </h1>
+                <p class="text-[#5A5A5A] mt-2">
+                    This helps students recognize verified PG owners.
+                </p>
+            </div>
+
+            <!-- Profile Form -->
+            <form id="profileForm" class="px-8 pb-8">
+                <!-- Profile Picture Upload -->
+                <div class="profile-pic-container">
+                    <img id="profilePreview" src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80" 
+                         alt="Profile" class="profile-pic">
+                    <label for="profileUpload" class="upload-btn">
+                        ✏️
+                    </label>
+                    <input type="file" id="profileUpload" accept="image/*" class="hidden">
+                </div>
+
+                <!-- Full Name -->
+                <div class="mb-6">
+                    <label for="fullName" class="block text-[#5A5A5A] font-medium mb-2">
+                        Full Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="fullName" name="fullName" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-300 input-field transition-all duration-200">
+                </div>
+
+                <!-- Contact Number -->
+                <div class="mb-6">
+                    <label for="contactNumber" class="block text-[#5A5A5A] font-medium mb-2">
+                        Contact Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" id="contactNumber" name="contactNumber" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-300 input-field transition-all duration-200"
+                           placeholder="e.g. 9876543210">
+                </div>
+
+                <!-- WhatsApp Number -->
+                <div class="mb-6">
+                    <label for="whatsappNumber" class="block text-[#5A5A5A] font-medium mb-2">
+                        WhatsApp Number
+                    </label>
+                    <input type="tel" id="whatsappNumber" name="whatsappNumber"
+                           class="w-full px-4 py-3 rounded-xl border border-gray-300 input-field transition-all duration-200"
+                           placeholder="Same as contact number">
+                    <div class="flex items-center mt-2">
+                        <input type="checkbox" id="sameAsContact" class="w-5 h-5 text-[#F4C542] focus:ring-[#F4C542] rounded mr-2" checked>
+                        <label for="sameAsContact" class="text-sm text-[#5A5A5A]">Same as contact number</label>
+                    </div>
+                </div>
+
+                <!-- Gender -->
+                <div class="mb-6">
+                    <label class="block text-[#5A5A5A] font-medium mb-3">Gender</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="gender" value="Male" class="w-5 h-5 text-[#F4C542] focus:ring-[#F4C542] mr-2">
+                            <span class="text-[#5A5A5A]">Male</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="gender" value="Female" class="w-5 h-5 text-[#F4C542] focus:ring-[#F4C542] mr-2">
+                            <span class="text-[#5A5A5A]">Female</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="gender" value="Other" class="w-5 h-5 text-[#F4C542] focus:ring-[#F4C542] mr-2">
+                            <span class="text-[#5A5A5A]">Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="mb-8">
+                    <label for="bio" class="block text-[#5A5A5A] font-medium mb-2">
+                        Short Bio
+                    </label>
+                    <textarea id="bio" name="bio" rows="4"
+                              class="w-full px-4 py-3 rounded-xl border border-gray-300 input-field transition-all duration-200 resize-none"
+                              placeholder="Tell us something about yourself..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                        class="w-full bg-[#F4C542] hover:bg-[#E6B73A] text-[#4A2E1D] font-semibold py-4 px-6 rounded-xl shadow-md submit-btn flex items-center justify-center">
+                    <span class="mr-2">✅</span> Save & Continue to Dashboard
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="px-8 pb-6 text-center text-sm text-[#5A5A5A]">
+                <span class="opacity-70">🔒 Your info stays private. Used only for verification.</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFWWbgSKtg-6X4-Ef-xdCBXHQv9BLvXzI",
+            authDomain: "pgideatesting.firebaseapp.com",
+            projectId: "pgideatesting",
+            storageBucket: "pgideatesting.appspot.com",
+            messagingSenderId: "525548027144",
+            appId: "1:525548027144:web:800a8616b67a49f5dec0bd",
+            measurementId: "G-L1FET4SED7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('profileForm');
+            const contactNumber = document.getElementById('contactNumber');
+            const whatsappNumber = document.getElementById('whatsappNumber');
+            const sameAsContact = document.getElementById('sameAsContact');
+            const profileUpload = document.getElementById('profileUpload');
+            const profilePreview = document.getElementById('profilePreview');
+
+            // Check authentication state
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Auto-fill WhatsApp when checkbox is checked
+            contactNumber.addEventListener('input', function() {
+                if (sameAsContact.checked) {
+                    whatsappNumber.value = contactNumber.value;
+                }
+            });
+
+            sameAsContact.addEventListener('change', function() {
+                whatsappNumber.disabled = this.checked;
+                whatsappNumber.value = this.checked ? contactNumber.value : '';
+            });
+
+            // Profile picture preview
+            profileUpload.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profilePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Form validation and submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Get current user
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('You must be logged in to complete your profile');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Validate required fields
+                if (!form.fullName.value.trim()) {
+                    alert('Please enter your full name');
+                    form.fullName.focus();
+                    return;
+                }
+
+                if (!form.contactNumber.value.trim() || !/^\d{10}$/.test(form.contactNumber.value)) {
+                    alert('Please enter a valid 10-digit contact number');
+                    form.contactNumber.focus();
+                    return;
+                }
+
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="mr-2">⏳</span> Saving...';
+
+                try {
+                    let profileImageUrl = null;
+                    
+                    // Upload profile picture if selected
+                    const file = profileUpload.files[0];
+                    if (file) {
+                        const storageRef = storage.ref(`profile_images/${user.uid}/${file.name}`);
+                        const snapshot = await storageRef.put(file);
+                        profileImageUrl = await snapshot.ref.getDownloadURL();
+                    }
+
+                    // Prepare profile data
+                    const profileData = {
+                        fullName: form.fullName.value,
+                        contactNumber: form.contactNumber.value,
+                        whatsappNumber: sameAsContact.checked ? form.contactNumber.value : form.whatsappNumber.value,
+                        gender: form.querySelector('input[name="gender"]:checked')?.value || 'Not specified',
+                        bio: form.bio.value,
+                        profileImage: profileImageUrl,
+                        userId: user.uid,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    // Save to Firestore
+                    await db.collection('profiles').doc(user.uid).set(profileData, { merge: true });
+
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } catch (error) {
+                    console.error('Error saving profile:', error);
+                    alert('Error saving profile: ' + error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span class="mr-2">✅</span> Save & Continue to Dashboard';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

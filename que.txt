@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PGidea - List Your PG or Mess</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-yellow: #FFD700;
+            --dark-yellow: #FFC000;
+            --brown: #8B4513;
+            --light-brown: #A0522D;
+            --white: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --medium-gray: #E0E0E0;
+            --dark-gray: #333333;
+            --error-red: #FF4444;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--light-gray) 0%, var(--white) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0) 70%);
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .form-header {
+            background: linear-gradient(90deg, var(--primary-yellow) 0%, var(--dark-yellow) 100%);
+            padding: 20px;
+            text-align: center;
+            color: var(--brown);
+        }
+
+        .form-title {
+            font-weight: 800;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 10px;
+        }
+
+        .form-subtitle {
+            font-weight: 600;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--medium-gray);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-yellow) 0%, var(--dark-yellow) 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .progress-text {
+            text-align: right;
+            padding: 5px 20px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+
+        .form-content {
+            padding: 30px;
+            min-height: 50vh;
+            position: relative;
+        }
+
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .step-title {
+            font-weight: 800;
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+        }
+
+        .step-subtitle {
+            font-weight: 400;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: var(--dark-gray);
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background-color: var(--light-gray);
+            border: 2px solid var(--medium-gray);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-yellow);
+        }
+
+        .option-card.selected {
+            background-color: var(--primary-yellow);
+            border-color: var(--dark-yellow);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .option-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .option-text {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-gray);
+            font-size: 1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-input.error {
+            border-color: var(--error-red);
+            animation: shake 0.5s;
+        }
+
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .radio-group, .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .radio-option input, .checkbox-option input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-label, .checkbox-label {
+            font-weight: 400;
+            font-size: 1rem;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .time-input {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .form-btn {
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-back {
+            background-color: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+
+        .btn-back:hover {
+            background-color: #D0D0D0;
+            transform: translateX(-3px);
+        }
+
+        .btn-next {
+            background: linear-gradient(90deg, var(--primary-yellow) 0%, var(--dark-yellow) 100%);
+            color: var(--brown);
+        }
+
+        .btn-next:hover {
+            transform: translateX(3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, var(--primary-yellow) 0%, var(--dark-yellow) 100%);
+            color: var(--brown);
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .media-upload-container {
+            border: 2px dashed var(--medium-gray);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .media-upload-container:hover {
+            border-color: var(--primary-yellow);
+            background-color: rgba(255, 215, 0, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary-yellow);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            opacity: 0.7;
+        }
+
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 120px;
+        }
+
+        .preview-item img, .preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--error-red);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .preview-item:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .type-selector {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .type-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background-color: var(--light-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .type-option.selected {
+            background: linear-gradient(90deg, var(--primary-yellow) 0%, var(--dark-yellow) 100%);
+            color: var(--brown);
+        }
+
+        .map-container {
+            height: 300px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid var(--medium-gray);
+        }
+
+        .facility-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .facility-name {
+            font-weight: 600;
+        }
+
+        .facility-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .facility-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-yellow);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .conditional-questions {
+            margin-top: 15px;
+            padding-left: 20px;
+            border-left: 3px solid var(--primary-yellow);
+            display: none;
+        }
+
+        .conditional-questions.show {
+            display: block;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--primary-yellow);
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+        }
+
+        .success-text {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--dark-gray);
+        }
+
+        .success-btn {
+            background: linear-gradient(90deg, var(--primary-yellow) 0%, var(--dark-yellow) 100%);
+            color: var(--brown);
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 768px) {
+            .form-content {
+                padding: 20px;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                margin-top: 30px;
+            }
+
+            .time-inputs {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .form-container {
+                border-radius: 15px;
+            }
+
+            .form-header {
+                padding: 15px;
+            }
+
+            .form-content {
+                padding: 15px;
+            }
+
+            .form-btn {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-bubbles" id="bubbles"></div>
+    
+    <div class="form-container">
+        <div class="form-header">
+            <h1 class="form-title">List Your PG or Mess</h1>
+            <p class="form-subtitle">Fill in the details to reach thousands of potential tenants</p>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% Complete</div>
+        
+        <div class="type-selector">
+            <div class="type-option selected" data-type="pg">PG Listing</div>
+            <div class="type-option" data-type="mess">Mess Listing</div>
+        </div>
+        
+        <div class="form-content">
+            <!-- PG Form Steps -->
+            <div id="pg-form">
+                <!-- Step 1: Location -->
+                <div class="form-step active" id="pg-step1">
+                    <h2 class="step-title">Where is your PG located?</h2>
+                    <p class="step-subtitle">Help tenants find your property easily</p>
+                    
+                    <div class="options-container">
+                        <div class="option-card" data-option="current-location">
+                            <div class="option-icon">⛺</div>
+                            <div class="option-text">Use my current location</div>
+                        </div>
+                        <div class="option-card" data-option="manual-entry">
+                            <div class="option-icon">✏️</div>
+                            <div class="option-text">Enter manually</div>
+                        </div>
+                        <div class="option-card" data-option="map-pin">
+                            <div class="option-icon">📌</div>
+                            <div class="option-text">Pin on map</div>
+                        </div>
+                    </div>
+                    
+                    <div id="manual-entry-fields" style="display: none;">
+                        <div class="input-group">
+                            <label class="input-label" for="pg-address">Address</label>
+                            <input type="text" id="pg-address" class="form-input" placeholder="House number, street name">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="pg-area">Area/Locality</label>
+                            <input type="text" id="pg-area" class="form-input" placeholder="e.g. Koramangala, MG Road">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="pg-city">City</label>
+                            <input type="text" id="pg-city" class="form-input" placeholder="e.g. Bangalore">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="pg-state">State</label>
+                            <input type="text" id="pg-state" class="form-input" placeholder="e.g. Karnataka">
+                        </div>
+                    </div>
+                    
+                    <div id="map-container" class="map-container" style="display: none;"></div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back" disabled>Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Room Charge Type -->
+                <div class="form-step" id="pg-step2">
+                    <h2 class="step-title">How is the room charged?</h2>
+                    <p class="step-subtitle">Select the pricing model for your PG</p>
+                    
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="pg-charge-entire" name="pg-charge-type" value="entire" checked>
+                            <label class="radio-label" for="pg-charge-entire">Entire Room Charge</label>
+                        </div>
+                        <div class="input-group" id="pg-entire-room-price">
+                            <label class="input-label" for="pg-monthly-rent">Monthly Rent (₹)</label>
+                            <input type="number" id="pg-monthly-rent" class="form-input" placeholder="e.g. 8000">
+                        </div>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="pg-charge-per-bed" name="pg-charge-type" value="per-bed">
+                            <label class="radio-label" for="pg-charge-per-bed">Per Bed Charge</label>
+                        </div>
+                        
+                        <div id="per-bed-options" style="display: none;">
+                            <div class="input-group">
+                                <label class="input-label">How many beds per room?</label>
+                                <div class="radio-option">
+                                    <input type="radio" id="pg-beds-1" name="pg-beds" value="1">
+                                    <label class="radio-label" for="pg-beds-1">1</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="pg-beds-2" name="pg-beds" value="2">
+                                    <label class="radio-label" for="pg-beds-2">2</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="pg-beds-3" name="pg-beds" value="3">
+                                    <label class="radio-label" for="pg-beds-3">3</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="pg-beds-4" name="pg-beds" value="4">
+                                    <label class="radio-label" for="pg-beds-4">4</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="pg-beds-custom" name="pg-beds" value="custom">
+                                    <label class="radio-label" for="pg-beds-custom">Custom</label>
+                                </div>
+                                <div class="input-group" id="pg-custom-beds" style="display: none;">
+                                    <input type="number" id="pg-beds-custom-value" class="form-input" placeholder="Enter number of beds" min="1">
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label" for="pg-price-per-bed">Price per bed (₹)</label>
+                                <input type="number" id="pg-price-per-bed" class="form-input" placeholder="e.g. 4000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Utility Inclusions -->
+                <div class="form-step" id="pg-step3">
+                    <h2 class="step-title">Are these included in the rent?</h2>
+                    <p class="step-subtitle">Select which utilities are covered by the rent</p>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="pg-light-bill" name="pg-utilities">
+                            <label class="checkbox-label" for="pg-light-bill">Light Bill</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="pg-water-bill" name="pg-utilities">
+                            <label class="checkbox-label" for="pg-water-bill">Water Bill</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Facilities -->
+                <div class="form-step" id="pg-step4">
+                    <h2 class="step-title">What facilities are available?</h2>
+                    <p class="step-subtitle">Select all the amenities your PG provides</p>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Water source</div>
+                        <select id="pg-water-source" class="form-input">
+                            <option value="">Select water source</option>
+                            <option value="nagar-nigam">Nagar Nigam</option>
+                            <option value="borewell">Borewell</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Fan</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-fan">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Light</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-light">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Bed</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-bed">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Table</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-table">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Chair</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-chair">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Cupboard</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-cupboard">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Almari</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-almari">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Fridge</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-fridge">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Cooler</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-cooler">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">AC</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-ac">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Washing Machine</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-washing-machine">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Gas and Stove</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-gas-stove">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Bucket & Mug</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-bucket-mug">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Bathroom Use</div>
+                        <select id="pg-bathroom-use" class="form-input">
+                            <option value="">Select bathroom type</option>
+                            <option value="personal">Personal</option>
+                            <option value="shared-roommates">Shared with roommates</option>
+                            <option value="shared-others">Shared with others</option>
+                        </select>
+                    </div>
+                    
+                    <div id="pg-bathroom-shared-others" class="conditional-questions">
+                        <div class="input-group">
+                            <label class="input-label" for="pg-bathroom-shared-count">How many others share this bathroom?</label>
+                            <input type="number" id="pg-bathroom-shared-count" class="form-input" min="1">
+                        </div>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">Parking Space</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-parking">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="facility-item">
+                        <div class="facility-name">EV Bike/Scooty Charging</div>
+                        <label class="facility-toggle">
+                            <input type="checkbox" id="pg-ev-charging">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 5: Curfew Timing -->
+                <div class="form-step" id="pg-step5">
+                    <h2 class="step-title">Is there any curfew timing?</h2>
+                    <p class="step-subtitle">Let tenants know about any entry/exit restrictions</p>
+                    
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="pg-curfew-yes" name="pg-curfew" value="yes">
+                            <label class="radio-label" for="pg-curfew-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="pg-curfew-no" name="pg-curfew" value="no" checked>
+                            <label class="radio-label" for="pg-curfew-no">No</label>
+                        </div>
+                    </div>
+                    
+                    <div id="pg-curfew-time-container" style="display: none; margin-top: 20px;">
+                        <div class="input-group">
+                            <label class="input-label" for="pg-curfew-time">Curfew Time</label>
+                            <input type="time" id="pg-curfew-time" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 6: Restrictions -->
+                <div class="form-step" id="pg-step6">
+                    <h2 class="step-title">Are there any restrictions?</h2>
+                    <p class="step-subtitle">Let tenants know about any rules they should be aware of</p>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="pg-restriction-veg" name="pg-restrictions">
+                            <label class="checkbox-label" for="pg-restriction-veg">Veg only</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="pg-restriction-jain" name="pg-restrictions">
+                            <label class="checkbox-label" for="pg-restriction-jain">Jain food only</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="pg-restriction-no-cooking" name="pg-restrictions">
+                            <label class="checkbox-label" for="pg-restriction-no-cooking">No cooking allowed</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="pg-restriction-no-friends" name="pg-restrictions">
+                            <label class="checkbox-label" for="pg-restriction-no-friends">No friends allowed</label>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group" style="margin-top: 20px;">
+                        <label class="input-label" for="pg-restriction-other">Add more restrictions (if any)</label>
+                        <input type="text" id="pg-restriction-other" class="form-input" placeholder="e.g. No overnight guests, No alcohol, etc.">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 7: Other Info -->
+                <div class="form-step" id="pg-step7">
+                    <h2 class="step-title">Anything else to share?</h2>
+                    <p class="step-subtitle">Add any additional information about your PG</p>
+                    
+                    <div class="input-group">
+                        <label class="input-label" for="pg-other-info">Description</label>
+                        <textarea id="pg-other-info" class="form-input" rows="6" placeholder="e.g. Peaceful neighborhood, near metro station, home-like environment..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 8: Upload Media -->
+                <div class="form-step" id="pg-step8">
+                    <h2 class="step-title">Add media to help tenants understand your PG</h2>
+                    <p class="step-subtitle">Upload at least 5 photos and optionally a video</p>
+                    
+                    <div class="media-upload-container" id="pg-media-upload">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Drag & drop photos/videos here</div>
+                        <div class="upload-subtext">or click to browse files (JPEG, PNG, MP4)</div>
+                        <input type="file" id="pg-media-input" multiple accept="image/*,video/*" style="display: none;">
+                    </div>
+                    
+                    <div class="preview-container" id="pg-media-preview"></div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-submit" id="pg-submit-btn">Submit PG Listing</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mess Form Steps -->
+            <div id="mess-form" style="display: none;">
+                <!-- Step 1: General Menu -->
+                <div class="form-step active" id="mess-step1">
+                    <h2 class="step-title">What's your usual menu?</h2>
+                    <p class="step-subtitle">Describe your typical food offerings</p>
+                    
+                    <div class="input-group">
+                        <label class="input-label" for="mess-menu">Menu Description</label>
+                        <textarea id="mess-menu" class="form-input" rows="6" placeholder="e.g. Breakfast: Idli/Dosa, Lunch: Rice with 2 curries and dal, Dinner: Roti with sabzi..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back" disabled>Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Special Food Days -->
+                <div class="form-step" id="mess-step2">
+                    <h2 class="step-title">Are there any special food days?</h2>
+                    <p class="step-subtitle">Add days when you serve special meals</p>
+                    
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="mess-special-yes" name="mess-special" value="yes">
+                            <label class="radio-label" for="mess-special-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="mess-special-no" name="mess-special" value="no" checked>
+                            <label class="radio-label" for="mess-special-no">No</label>
+                        </div>
+                    </div>
+                    
+                    <div id="mess-special-days-container" style="display: none; margin-top: 20px;">
+                        <div class="checkbox-group">
+                            <label class="input-label">Select days with special food</label>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-monday" name="mess-special-days" value="monday">
+                                <label class="checkbox-label" for="mess-special-monday">Monday</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-tuesday" name="mess-special-days" value="tuesday">
+                                <label class="checkbox-label" for="mess-special-tuesday">Tuesday</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-wednesday" name="mess-special-days" value="wednesday">
+                                <label class="checkbox-label" for="mess-special-wednesday">Wednesday</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-thursday" name="mess-special-days" value="thursday">
+                                <label class="checkbox-label" for="mess-special-thursday">Thursday</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-friday" name="mess-special-days" value="friday">
+                                <label class="checkbox-label" for="mess-special-friday">Friday</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-saturday" name="mess-special-days" value="saturday">
+                                <label class="checkbox-label" for="mess-special-saturday">Saturday</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="mess-special-sunday" name="mess-special-days" value="sunday">
+                                <label class="checkbox-label" for="mess-special-sunday">Sunday</label>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" for="mess-special-menu">Special Menu Description</label>
+                            <textarea id="mess-special-menu" class="form-input" rows="4" placeholder="Describe what special food you serve on these days"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Serving Timings -->
+                <div class="form-step" id="mess-step3">
+                    <h2 class="step-title">When do you serve food?</h2>
+                    <p class="step-subtitle">Select all meal times you provide</p>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="mess-time-morning" name="mess-times">
+                            <label class="checkbox-label" for="mess-time-morning">Morning</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="mess-time-afternoon" name="mess-times">
+                            <label class="checkbox-label" for="mess-time-afternoon">Afternoon</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="mess-time-evening" name="mess-times">
+                            <label class="checkbox-label" for="mess-time-evening">Evening</label>
+                        </div>
+                    </div>
+                    
+                    <div id="mess-time-inputs" style="margin-top: 20px;">
+                        <div class="input-group" id="mess-morning-time" style="display: none;">
+                            <label class="input-label">Morning Serving Time</label>
+                            <div class="time-inputs">
+                                <div class="time-input">
+                                    <input type="time" id="mess-morning-start" class="form-input">
+                                </div>
+                                <div class="time-input">
+                                    <input type="time" id="mess-morning-end" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group" id="mess-afternoon-time" style="display: none;">
+                            <label class="input-label">Afternoon Serving Time</label>
+                            <div class="time-inputs">
+                                <div class="time-input">
+                                    <input type="time" id="mess-afternoon-start" class="form-input">
+                                </div>
+                                <div class="time-input">
+                                    <input type="time" id="mess-afternoon-end" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group" id="mess-evening-time" style="display: none;">
+                            <label class="input-label">Evening Serving Time</label>
+                            <div class="time-inputs">
+                                <div class="time-input">
+                                    <input type="time" id="mess-evening-start" class="form-input">
+                                </div>
+                                <div class="time-input">
+                                    <input type="time" id="mess-evening-end" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Service Type -->
+                <div class="form-step" id="mess-step4">
+                    <h2 class="step-title">How is food served?</h2>
+                    <p class="step-subtitle">Select your service options</p>
+                    
+                    <div class="options-container">
+                        <div class="option-card" data-option="tiffin">
+                            <div class="option-icon">🍱</div>
+                            <div class="option-text">Tiffin delivery</div>
+                        </div>
+                        <div class="option-card" data-option="dine-in">
+                            <div class="option-icon">🍽️</div>
+                            <div class="option-text">Dine-in at mess</div>
+                        </div>
+                        <div class="option-card" data-option="both">
+                            <div class="option-icon">🍱+🍽️</div>
+                            <div class="option-text">Both</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 5: Costing -->
+                <div class="form-step" id="mess-step5">
+                    <h2 class="step-title">What's the cost?</h2>
+                    <p class="step-subtitle">Set your pricing options</p>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Cost per meal (₹)</label>
+                        <div class="input-group" id="mess-morning-price" style="display: none;">
+                            <label class="input-label" for="mess-price-morning">Morning</label>
+                            <input type="number" id="mess-price-morning" class="form-input" placeholder="e.g. 50">
+                        </div>
+                        <div class="input-group" id="mess-afternoon-price" style="display: none;">
+                            <label class="input-label" for="mess-price-afternoon">Afternoon</label>
+                            <input type="number" id="mess-price-afternoon" class="form-input" placeholder="e.g. 80">
+                        </div>
+                        <div class="input-group" id="mess-evening-price" style="display: none;">
+                            <label class="input-label" for="mess-price-evening">Evening</label>
+                            <input type="number" id="mess-price-evening" class="form-input" placeholder="e.g. 70">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group" style="margin-top: 20px;">
+                        <label class="input-label">Subscription Plans (₹)</label>
+                        <div class="input-group">
+                            <label class="input-label" for="mess-price-monthly">Monthly</label>
+                            <input type="number" id="mess-price-monthly" class="form-input" placeholder="e.g. 3000">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="mess-price-3month">3 Months</label>
+                            <input type="number" id="mess-price-3month" class="form-input" placeholder="e.g. 8500">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="mess-price-6month">6 Months</label>
+                            <input type="number" id="mess-price-6month" class="form-input" placeholder="e.g. 16000">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="mess-price-yearly">Yearly</label>
+                            <input type="number" id="mess-price-yearly" class="form-input" placeholder="e.g. 30000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 6: Diet Options -->
+                <div class="form-step" id="mess-step6">
+                    <h2 class="step-title">Which diets do you support?</h2>
+                    <p class="step-subtitle">Select all dietary options you provide</p>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="mess-diet-veg" name="mess-diets">
+                            <label class="checkbox-label" for="mess-diet-veg">Veg</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="mess-diet-nonveg" name="mess-diets">
+                            <label class="checkbox-label" for="mess-diet-nonveg">Non-veg</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="mess-diet-jain" name="mess-diets">
+                            <label class="checkbox-label" for="mess-diet-jain">Jain</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 7: Upload Media -->
+                <div class="form-step" id="mess-step7">
+                    <h2 class="step-title">Add photos of your mess</h2>
+                    <p class="step-subtitle">Upload at least 3 photos of your mess space and 2 meal photos</p>
+                    
+                    <div class="media-upload-container" id="mess-media-upload">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Drag & drop photos here</div>
+                        <div class="upload-subtext">or click to browse files (JPEG, PNG)</div>
+                        <input type="file" id="mess-media-input" multiple accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <div class="preview-container" id="mess-media-preview"></div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-next">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Step 8: Other Info -->
+                <div class="form-step" id="mess-step8">
+                    <h2 class="step-title">Anything else to share?</h2>
+                    <p class="step-subtitle">Add any additional information about your mess</p>
+                    
+                    <div class="input-group">
+                        <label class="input-label" for="mess-other-info">Description</label>
+                        <textarea id="mess-other-info" class="form-input" rows="6" placeholder="e.g. Home-style cooking, hygienic environment, special occasions..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="form-btn btn-back">Back</button>
+                        <button class="form-btn btn-submit" id="mess-submit-btn">Submit Mess Listing</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <div class="success-message" id="success-message">
+                <div class="success-icon">🎉</div>
+                <h2 class="success-title">Listing Submitted Successfully!</h2>
+                <p class="success-text">Thank you for listing your property on PGidea. Our team will review your submission and get back to you shortly.</p>
+                <a href="dashboard.html" class="success-btn" id="success-btn">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create background bubbles
+            createBubbles();
+            
+            // Initialize form functionality
+            initForms();
+            
+            // Load saved data if exists
+            loadSavedData();
+        });
+        
+        function createBubbles() {
+            const bubblesContainer = document.getElementById('bubbles');
+            const bubbleCount = 15;
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                
+                // Random size between 100px and 300px
+                const size = Math.random() * 200 + 100;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                
+                // Random position
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.top = `${Math.random() * 100}%`;
+                
+                // Random opacity
+                bubble.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                bubblesContainer.appendChild(bubble);
+            }
+        }
+        
+        function initForms() {
+            // Form type selector
+            const typeOptions = document.querySelectorAll('.type-option');
+            typeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    typeOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const formType = this.getAttribute('data-type');
+                    document.getElementById('pg-form').style.display = formType === 'pg' ? 'block' : 'none';
+                    document.getElementById('mess-form').style.display = formType === 'mess' ? 'block' : 'none';
+                    
+                    // Reset progress when switching forms
+                    updateProgressBar();
+                    saveFormState();
+                });
+            });
+            
+            // Initialize PG form
+            initPgForm();
+            
+            // Initialize Mess form
+            initMessForm();
+        }
+        
+        function initPgForm() {
+            const pgSteps = document.querySelectorAll('#pg-form .form-step');
+            let currentPgStep = 0;
+            
+            // Show first step
+            showStep(pgSteps, currentPgStep);
+            
+            // Location selection options
+            const locationOptions = document.querySelectorAll('#pg-step1 .option-card');
+            locationOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    locationOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const optionType = this.getAttribute('data-option');
+                    document.getElementById('manual-entry-fields').style.display = optionType === 'manual-entry' ? 'block' : 'none';
+                    document.getElementById('map-container').style.display = optionType === 'map-pin' ? 'block' : 'none';
+                    
+                    // Initialize map if selected
+                    if (optionType === 'map-pin' && !window.mapInitialized) {
+                        initMap();
+                        window.mapInitialized = true;
+                    }
+                    
+                    // Get current location if selected
+                    if (optionType === 'current-location') {
+                        getCurrentLocation();
+                    }
+                    
+                    saveFormState();
+                });
+            });
+            
+            // Room charge type toggle
+            document.getElementById('pg-charge-entire').addEventListener('change', function() {
+                document.getElementById('pg-entire-room-price').style.display = 'block';
+                document.getElementById('per-bed-options').style.display = 'none';
+                saveFormState();
+            });
+            
+            document.getElementById('pg-charge-per-bed').addEventListener('change', function() {
+                document.getElementById('pg-entire-room-price').style.display = 'none';
+                document.getElementById('per-bed-options').style.display = 'block';
+                saveFormState();
+            });
+            
+            // Beds per room options
+            const bedOptions = document.querySelectorAll('input[name="pg-beds"]');
+            bedOptions.forEach(option => {
+                option.addEventListener('change', function() {
+                    document.getElementById('pg-custom-beds').style.display = this.value === 'custom' ? 'block' : 'none';
+                    saveFormState();
+                });
+            });
+            
+            // Bathroom use conditional
+            document.getElementById('pg-bathroom-use').addEventListener('change', function() {
+                const sharedOthersContainer = document.getElementById('pg-bathroom-shared-others');
+                sharedOthersContainer.classList.toggle('show', this.value === 'shared-others');
+                saveFormState();
+            });
+            
+            // Curfew timing toggle
+            document.getElementById('pg-curfew-yes').addEventListener('change', function() {
+                document.getElementById('pg-curfew-time-container').style.display = 'block';
+                saveFormState();
+            });
+            
+            document.getElementById('pg-curfew-no').addEventListener('change', function() {
+                document.getElementById('pg-curfew-time-container').style.display = 'none';
+                saveFormState();
+            });
+            
+            // Media upload
+            initMediaUpload('pg-media-upload', 'pg-media-input', 'pg-media-preview');
+            
+            // Next button click
+            const pgNextButtons = document.querySelectorAll('#pg-form .btn-next');
+            pgNextButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (validateStep(pgSteps[currentPgStep])) {
+                        currentPgStep++;
+                        showStep(pgSteps, currentPgStep);
+                        updateProgressBar();
+                        saveFormState();
+                    }
+                });
+            });
+            
+            // Back button click
+            const pgBackButtons = document.querySelectorAll('#pg-form .btn-back');
+            pgBackButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    currentPgStep--;
+                    showStep(pgSteps, currentPgStep);
+                    updateProgressBar();
+                });
+            });
+            
+            // Submit button
+            document.getElementById('pg-submit-btn').addEventListener('click', function() {
+                if (validateStep(pgSteps[currentPgStep])) {
+                    submitForm('pg');
+                }
+            });
+        }
+        
+        function initMessForm() {
+            const messSteps = document.querySelectorAll('#mess-form .form-step');
+            let currentMessStep = 0;
+            
+            // Show first step
+            showStep(messSteps, currentMessStep);
+            
+            // Special food days toggle
+            document.getElementById('mess-special-yes').addEventListener('change', function() {
+                document.getElementById('mess-special-days-container').style.display = 'block';
+                saveFormState();
+            });
+            
+            document.getElementById('mess-special-no').addEventListener('change', function() {
+                document.getElementById('mess-special-days-container').style.display = 'none';
+                saveFormState();
+            });
+            
+            // Meal times toggle
+            document.getElementById('mess-time-morning').addEventListener('change', function() {
+                document.getElementById('mess-morning-time').style.display = this.checked ? 'block' : 'none';
+                document.getElementById('mess-morning-price').style.display = this.checked ? 'block' : 'none';
+                saveFormState();
+            });
+            
+            document.getElementById('mess-time-afternoon').addEventListener('change', function() {
+                document.getElementById('mess-afternoon-time').style.display = this.checked ? 'block' : 'none';
+                document.getElementById('mess-afternoon-price').style.display = this.checked ? 'block' : 'none';
+                saveFormState();
+            });
+            
+            document.getElementById('mess-time-evening').addEventListener('change', function() {
+                document.getElementById('mess-evening-time').style.display = this.checked ? 'block' : 'none';
+                document.getElementById('mess-evening-price').style.display = this.checked ? 'block' : 'none';
+                saveFormState();
+            });
+            
+            // Service type options
+            const serviceOptions = document.querySelectorAll('#mess-step4 .option-card');
+            serviceOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    serviceOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    saveFormState();
+                });
+            });
+            
+            // Media upload
+            initMediaUpload('mess-media-upload', 'mess-media-input', 'mess-media-preview');
+            
+            // Next button click
+            const messNextButtons = document.querySelectorAll('#mess-form .btn-next');
+            messNextButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (validateStep(messSteps[currentMessStep])) {
+                        currentMessStep++;
+                        showStep(messSteps, currentMessStep);
+                        updateProgressBar();
+                        saveFormState();
+                    }
+                });
+            });
+            
+            // Back button click
+            const messBackButtons = document.querySelectorAll('#mess-form .btn-back');
+            messBackButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    currentMessStep--;
+                    showStep(messSteps, currentMessStep);
+                    updateProgressBar();
+                });
+            });
+            
+            // Submit button
+            document.getElementById('mess-submit-btn').addEventListener('click', function() {
+                if (validateStep(messSteps[currentMessStep])) {
+                    submitForm('mess');
+                }
+            });
+        }
+        
+        function showStep(steps, stepIndex) {
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index === stepIndex);
+                
+                // Enable/disable back button on first step
+                const backButton = step.querySelector('.btn-back');
+                if (backButton) {
+                    backButton.disabled = stepIndex === 0;
+                }
+            });
+        }
+        
+        function updateProgressBar() {
+            const activeForm = document.querySelector('.type-option.selected').getAttribute('data-type');
+            const steps = activeForm === 'pg' ? 
+                document.querySelectorAll('#pg-form .form-step') : 
+                document.querySelectorAll('#mess-form .form-step');
+            
+            const activeStep = activeForm === 'pg' ? 
+                document.querySelector('#pg-form .form-step.active') : 
+                document.querySelector('#mess-form .form-step.active');
+            
+            const stepIndex = Array.from(steps).indexOf(activeStep);
+            const progress = (stepIndex / (steps.length - 1)) * 100;
+            
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progress)}% Complete`;
+        }
+        
+        function validateStep(step) {
+            let isValid = true;
+            
+            // Location validation
+            if (step.id === 'pg-step1') {
+                const selectedOption = step.querySelector('.option-card.selected');
+                if (!selectedOption) {
+                    showError('Please select a location option');
+                    isValid = false;
+                } else if (selectedOption.getAttribute('data-option') === 'manual-entry') {
+                    const address = document.getElementById('pg-address').value;
+                    const area = document.getElementById('pg-area').value;
+                    const city = document.getElementById('pg-city').value;
+                    const state = document.getElementById('pg-state').value;
+                    
+                    if (!address || !area || !city || !state) {
+                        showError('Please fill all address fields');
+                        isValid = false;
+                    }
+                }
+            }
+            
+            // Room charge validation
+            if (step.id === 'pg-step2') {
+                if (document.getElementById('pg-charge-entire').checked) {
+                    const rent = document.getElementById('pg-monthly-rent').value;
+                    if (!rent || isNaN(rent) || rent <= 0) {
+                        showError('Please enter a valid monthly rent');
+                        isValid = false;
+                    }
+                } else {
+                    const beds = document.querySelector('input[name="pg-beds"]:checked');
+                    if (!beds) {
+                        showError('Please select number of beds');
+                        isValid = false;
+                    } else if (beds.value === 'custom') {
+                        const customBeds = document.getElementById('pg-beds-custom-value').value;
+                        if (!customBeds || isNaN(customBeds) || customBeds <= 0) {
+                            showError('Please enter a valid number of beds');
+                            isValid = false;
+                        }
+                    }
+                    
+                    const pricePerBed = document.getElementById('pg-price-per-bed').value;
+                    if (!pricePerBed || isNaN(pricePerBed) || pricePerBed <= 0) {
+                        showError('Please enter a valid price per bed');
+                        isValid = false;
+                    }
+                }
+            }
+            
+            // Media upload validation
+            if (step.id === 'pg-step8') {
+                const previewItems = document.querySelectorAll('#pg-media-preview .preview-item');
+                if (previewItems.length < 5) {
+                    showError('Please upload at least 5 photos');
+                    isValid = false;
+                }
+            }
+            
+            // Mess menu validation
+            if (step.id === 'mess-step1') {
+                const menu = document.getElementById('mess-menu').value;
+                if (!menu || menu.length < 20) {
+                    showError('Please provide a detailed menu (at least 20 characters)');
+                    isValid = false;
+                }
+            }
+            
+            // Mess media validation
+            if (step.id === 'mess-step7') {
+                const previewItems = document.querySelectorAll('#mess-media-preview .preview-item');
+                if (previewItems.length < 3) {
+                    showError('Please upload at least 3 photos of your mess');
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+        
+        function showError(message) {
+            // In a real app, you'd show this near the relevant field
+            alert(message); // Simplified for this example
+        }
+        
+        function initMediaUpload(uploadContainerId, inputId, previewContainerId) {
+            const uploadContainer = document.getElementById(uploadContainerId);
+            const fileInput = document.getElementById(inputId);
+            const previewContainer = document.getElementById(previewContainerId);
+            
+            // Click handler
+            uploadContainer.addEventListener('click', () => fileInput.click());
+            
+            // Drag and drop handlers
+            uploadContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadContainer.style.borderColor = 'var(--primary-yellow)';
+                uploadContainer.style.backgroundColor = 'rgba(255, 215, 0, 0.05)';
+            });
+            
+            uploadContainer.addEventListener('dragleave', () => {
+                uploadContainer.style.borderColor = 'var(--medium-gray)';
+                uploadContainer.style.backgroundColor = '';
+            });
+            
+            uploadContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadContainer.style.borderColor = 'var(--medium-gray)';
+                uploadContainer.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFiles(fileInput.files, previewContainer);
+                }
+            });
+            
+            // File input change handler
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFiles(fileInput.files, previewContainer);
+                }
+            });
+        }
+        
+        function handleFiles(files, previewContainer) {
+            previewContainer.innerHTML = '';
+            
+            Array.from(files).forEach(file => {
+                if (!file.type.match('image.*') && !file.type.match('video.*')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    
+                    if (file.type.match('image.*')) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewItem.appendChild(img);
+                    } else if (file.type.match('video.*')) {
+                        const video = document.createElement('video');
+                        video.src = e.target.result;
+                        video.controls = true;
+                        previewItem.appendChild(video);
+                    }
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.innerHTML = '×';
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        previewItem.remove();
+                        saveFormState();
+                    });
+                    
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+            
+            saveFormState();
+        }
+        
+        function initMap() {
+            // In a real app, you'd initialize Google Maps or Leaflet here
+            const mapContainer = document.getElementById('map-container');
+            mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">Map would be displayed here in a real implementation</div>';
+        }
+        
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        // In a real app, you'd use reverse geocoding to get address
+                        alert(`Location found: Latitude ${position.coords.latitude}, Longitude ${position.coords.longitude}`);
+                    },
+                    error => {
+                        alert(`Error getting location: ${error.message}`);
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser');
+            }
+        }
+        
+        function saveFormState() {
+            const formType = document.querySelector('.type-option.selected').getAttribute('data-type');
+            const formData = {};
+            
+            if (formType === 'pg') {
+                // Save PG form data
+                const activeStep = document.querySelector('#pg-form .form-step.active');
+                formData.pg = {
+                    currentStep: Array.from(document.querySelectorAll('#pg-form .form-step')).indexOf(activeStep),
+                    locationOption: document.querySelector('#pg-step1 .option-card.selected')?.getAttribute('data-option'),
+                    address: document.getElementById('pg-address').value,
+                    area: document.getElementById('pg-area').value,
+                    city: document.getElementById('pg-city').value,
+                    state: document.getElementById('pg-state').value,
+                    chargeType: document.querySelector('input[name="pg-charge-type"]:checked')?.value,
+                    monthlyRent: document.getElementById('pg-monthly-rent').value,
+                    bedsPerRoom: document.querySelector('input[name="pg-beds"]:checked')?.value,
+                    customBeds: document.getElementById('pg-beds-custom-value').value,
+                    pricePerBed: document.getElementById('pg-price-per-bed').value,
+                    lightBill: document.getElementById('pg-light-bill').checked,
+                    waterBill: document.getElementById('pg-water-bill').checked,
+                    waterSource: document.getElementById('pg-water-source').value,
+                    fan: document.getElementById('pg-fan').checked,
+                    light: document.getElementById('pg-light').checked,
+                    bed: document.getElementById('pg-bed').checked,
+                    table: document.getElementById('pg-table').checked,
+                    chair: document.getElementById('pg-chair').checked,
+                    cupboard: document.getElementById('pg-cupboard').checked,
+                    almari: document.getElementById('pg-almari').checked,
+                    fridge: document.getElementById('pg-fridge').checked,
+                    cooler: document.getElementById('pg-cooler').checked,
+                    ac: document.getElementById('pg-ac').checked,
+                    washingMachine: document.getElementById('pg-washing-machine').checked,
+                    gasStove: document.getElementById('pg-gas-stove').checked,
+                    bucketMug: document.getElementById('pg-bucket-mug').checked,
+                    bathroomUse: document.getElementById('pg-bathroom-use').value,
+                    bathroomSharedCount: document.getElementById('pg-bathroom-shared-count').value,
+                    parking: document.getElementById('pg-parking').checked,
+                    evCharging: document.getElementById('pg-ev-charging').checked,
+                    hasCurfew: document.getElementById('pg-curfew-yes').checked,
+                    curfewTime: document.getElementById('pg-curfew-time').value,
+                    restrictionVeg: document.getElementById('pg-restriction-veg').checked,
+                    restrictionJain: document.getElementById('pg-restriction-jain').checked,
+                    restrictionNoCooking: document.getElementById('pg-restriction-no-cooking').checked,
+                    restrictionNoFriends: document.getElementById('pg-restriction-no-friends').checked,
+                    restrictionOther: document.getElementById('pg-restriction-other').value,
+                    otherInfo: document.getElementById('pg-other-info').value
+                    // Note: Media files would need special handling in a real app
+                };
+            } else {
+                // Save Mess form data
+                const activeStep = document.querySelector('#mess-form .form-step.active');
+                formData.mess = {
+                    currentStep: Array.from(document.querySelectorAll('#mess-form .form-step')).indexOf(activeStep),
+                    menu: document.getElementById('mess-menu').value,
+                    hasSpecialDays: document.getElementById('mess-special-yes').checked,
+                    specialDays: Array.from(document.querySelectorAll('input[name="mess-special-days"]:checked')).map(el => el.value),
+                    specialMenu: document.getElementById('mess-special-menu').value,
+                    morningTime: document.getElementById('mess-time-morning').checked,
+                    morningStart: document.getElementById('mess-morning-start').value,
+                    morningEnd: document.getElementById('mess-morning-end').value,
+                    afternoonTime: document.getElementById('mess-time-afternoon').checked,
+                    afternoonStart: document.getElementById('mess-afternoon-start').value,
+                    afternoonEnd: document.getElementById('mess-afternoon-end').value,
+                    eveningTime: document.getElementById('mess-time-evening').checked,
+                    eveningStart: document.getElementById('mess-evening-start').value,
+                    eveningEnd: document.getElementById('mess-evening-end').value,
+                    serviceType: document.querySelector('#mess-step4 .option-card.selected')?.getAttribute('data-option'),
+                    priceMorning: document.getElementById('mess-price-morning').value,
+                    priceAfternoon: document.getElementById('mess-price-afternoon').value,
+                    priceEvening: document.getElementById('mess-price-evening').value,
+                    priceMonthly: document.getElementById('mess-price-monthly').value,
+                    price3Month: document.getElementById('mess-price-3month').value,
+                    price6Month: document.getElementById('mess-price-6month').value,
+                    priceYearly: document.getElementById('mess-price-yearly').value,
+                    dietVeg: document.getElementById('mess-diet-veg').checked,
+                    dietNonveg: document.getElementById('mess-diet-nonveg').checked,
+                    dietJain: document.getElementById('mess-diet-jain').checked,
+                    otherInfo: document.getElementById('mess-other-info').value
+                    // Note: Media files would need special handling in a real app
+                };
+            }
+            
+            localStorage.setItem('pgideaFormData', JSON.stringify(formData));
+        }
+        
+        function loadSavedData() {
+            const savedData = localStorage.getItem('pgideaFormData');
+            if (!savedData) return;
+            
+            const formData = JSON.parse(savedData);
+            const formType = document.querySelector('.type-option.selected').getAttribute('data-type');
+            
+            if (formType === 'pg' && formData.pg) {
+                // Load PG form data
+                const pgData = formData.pg;
+                
+                // Set current step
+                const pgSteps = document.querySelectorAll('#pg-form .form-step');
+                showStep(pgSteps, pgData.currentStep || 0);
+                
+                // Location
+                if (pgData.locationOption) {
+                    const option = document.querySelector(`#pg-step1 .option-card[data-option="${pgData.locationOption}"]`);
+                    if (option) {
+                        option.click();
+                        if (pgData.locationOption === 'manual-entry') {
+                            document.getElementById('pg-address').value = pgData.address || '';
+                            document.getElementById('pg-area').value = pgData.area || '';
+                            document.getElementById('pg-city').value = pgData.city || '';
+                            document.getElementById('pg-state').value = pgData.state || '';
+                        }
+                    }
+                }
+                
+                // Room charge
+                if (pgData.chargeType === 'entire') {
+                    document.getElementById('pg-charge-entire').checked = true;
+                    document.getElementById('pg-monthly-rent').value = pgData.monthlyRent || '';
+                } else {
+                    document.getElementById('pg-charge-per-bed').checked = true;
+                    if (pgData.bedsPerRoom) {
+                        document.querySelector(`input[name="pg-beds"][value="${pgData.bedsPerRoom}"]`).checked = true;
+                        if (pgData.bedsPerRoom === 'custom') {
+                            document.getElementById('pg-beds-custom-value').value = pgData.customBeds || '';
+                        }
+                    }
+                    document.getElementById('pg-price-per-bed').value = pgData.pricePerBed || '';
+                }
+                
+                // Utilities
+                document.getElementById('pg-light-bill').checked = pgData.lightBill || false;
+                document.getElementById('pg-water-bill').checked = pgData.waterBill || false;
+                
+                // Facilities
+                document.getElementById('pg-water-source').value = pgData.waterSource || '';
+                document.getElementById('pg-fan').checked = pgData.fan || false;
+                document.getElementById('pg-light').checked = pgData.light || false;
+                document.getElementById('pg-bed').checked = pgData.bed || false;
+                document.getElementById('pg-table').checked = pgData.table || false;
+                document.getElementById('pg-chair').checked = pgData.chair || false;
+                document.getElementById('pg-cupboard').checked = pgData.cupboard || false;
+                document.getElementById('pg-almari').checked = pgData.almari || false;
+                document.getElementById('pg-fridge').checked = pgData.fridge || false;
+                document.getElementById('pg-cooler').checked = pgData.cooler || false;
+                document.getElementById('pg-ac').checked = pgData.ac || false;
+                document.getElementById('pg-washing-machine').checked = pgData.washingMachine || false;
+                document.getElementById('pg-gas-stove').checked = pgData.gasStove || false;
+                document.getElementById('pg-bucket-mug').checked = pgData.bucketMug || false;
+                document.getElementById('pg-bathroom-use').value = pgData.bathroomUse || '';
+                if (pgData.bathroomUse === 'shared-others') {
+                    document.getElementById('pg-bathroom-shared-count').value = pgData.bathroomSharedCount || '';
+                }
+                document.getElementById('pg-parking').checked = pgData.parking || false;
+                document.getElementById('pg-ev-charging').checked = pgData.evCharging || false;
+                
+                // Curfew
+                if (pgData.hasCurfew) {
+                    document.getElementById('pg-curfew-yes').checked = true;
+                    document.getElementById('pg-curfew-time').value = pgData.curfewTime || '';
+                } else {
+                    document.getElementById('pg-curfew-no').checked = true;
+                }
+                
+                // Restrictions
+                document.getElementById('pg-restriction-veg').checked = pgData.restrictionVeg || false;
+                document.getElementById('pg-restriction-jain').checked = pgData.restrictionJain || false;
+                document.getElementById('pg-restriction-no-cooking').checked = pgData.restrictionNoCooking || false;
+                document.getElementById('pg-restriction-no-friends').checked = pgData.restrictionNoFriends || false;
+                document.getElementById('pg-restriction-other').value = pgData.restrictionOther || '';
+                
+                // Other info
+                document.getElementById('pg-other-info').value = pgData.otherInfo || '';
+                
+            } else if (formType === 'mess' && formData.mess) {
+                // Load Mess form data
+                const messData = formData.mess;
+                
+                // Set current step
+                const messSteps = document.querySelectorAll('#mess-form .form-step');
+                showStep(messSteps, messData.currentStep || 0);
+                
+                // Menu
+                document.getElementById('mess-menu').value = messData.menu || '';
+                
+                // Special days
+                if (messData.hasSpecialDays) {
+                    document.getElementById('mess-special-yes').checked = true;
+                    messData.specialDays?.forEach(day => {
+                        document.getElementById(`mess-special-${day}`).checked = true;
+                    });
+                    document.getElementById('mess-special-menu').value = messData.specialMenu || '';
+                } else {
+                    document.getElementById('mess-special-no').checked = true;
+                }
+                
+                // Serving times
+                document.getElementById('mess-time-morning').checked = messData.morningTime || false;
+                document.getElementById('mess-morning-start').value = messData.morningStart || '';
+                document.getElementById('mess-morning-end').value = messData.morningEnd || '';
+                
+                document.getElementById('mess-time-afternoon').checked = messData.afternoonTime || false;
+                document.getElementById('mess-afternoon-start').value = messData.afternoonStart || '';
+                document.getElementById('mess-afternoon-end').value = messData.afternoonEnd || '';
+                
+                document.getElementById('mess-time-evening').checked = messData.eveningTime || false;
+                document.getElementById('mess-evening-start').value = messData.eveningStart || '';
+                document.getElementById('mess-evening-end').value = messData.eveningEnd || '';
+                
+                // Service type
+                if (messData.serviceType) {
+                    const option = document.querySelector(`#mess-step4 .option-card[data-option="${messData.serviceType}"]`);
+                    if (option) option.click();
+                }
+                
+                // Pricing
+                document.getElementById('mess-price-morning').value = messData.priceMorning || '';
+                document.getElementById('mess-price-afternoon').value = messData.priceAfternoon || '';
+                document.getElementById('mess-price-evening').value = messData.priceEvening || '';
+                document.getElementById('mess-price-monthly').value = messData.priceMonthly || '';
+                document.getElementById('mess-price-3month').value = messData.price3Month || '';
+                document.getElementById('mess-price-6month').value = messData.price6Month || '';
+                document.getElementById('mess-price-yearly').value = messData.priceYearly || '';
+                
+                // Diet options
+                document.getElementById('mess-diet-veg').checked = messData.dietVeg || false;
+                document.getElementById('mess-diet-nonveg').checked = messData.dietNonveg || false;
+                document.getElementById('mess-diet-jain').checked = messData.dietJain || false;
+                
+                // Other info
+                document.getElementById('mess-other-info').value = messData.otherInfo || '';
+            }
+            
+            updateProgressBar();
+        }
+        
+        function submitForm(formType) {
+            // In a real app, you'd send the data to your backend
+            console.log(`Submitting ${formType} form data...`);
+            
+            // Show success message
+            document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+            document.getElementById('success-message').style.display = 'block';
+            
+            // Clear saved data
+            localStorage.removeItem('pgideaFormData');
+            
+            // Success button
+            document.getElementById('success-btn').addEventListener('click', function() {
+                // In a real app, you'd redirect to the homepage or dashboard
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

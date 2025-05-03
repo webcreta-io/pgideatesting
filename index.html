@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PGidea - Find Your PG, Flat or Mess</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #3a1f00;
+      background: 
+        radial-gradient(#ffedab 1px, transparent 1px),
+        linear-gradient(to bottom, #fff7db, #fff3c1);
+      background-size: 20px 20px, cover;
+      background-repeat: repeat, no-repeat;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle at center, #ffec87 0%, #ffce54 100%);
+      opacity: 0.25;
+      z-index: -1;
+      border-radius: 50%;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle at center, #fff4b3 0%, #ffd84a 100%);
+      opacity: 0.3;
+      z-index: -1;
+      border-radius: 50%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      color: #4c2c00;
+    }
+
+    .logo-icon {
+      background-color: #ffcc00;
+      padding: 0.4rem;
+      border-radius: 0.4rem;
+      margin-right: 0.6rem;
+    }
+
+    .login-btn {
+      background-color: #ffd84a;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background-color: #ffcc00;
+      transform: scale(1.05);
+    }
+
+    main {
+      text-align: center;
+      padding: 2rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+
+    p.sub {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .cta-buttons button {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cta-look {
+      background-color: #feca28;
+      color: #3a1f00;
+      border-color: #feca28;
+    }
+
+    .cta-look:hover {
+      background-color: #ffd84a;
+    }
+
+    .cta-list {
+      background-color: transparent;
+      color: #3a1f00;
+      border: 2px solid #feca28;
+      box-shadow: 0 0 0 0 transparent;
+    }
+
+    .cta-list:hover {
+      background-color: #fff4c1;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-color: #ffd84a;
+    }
+
+    .bordered-btn {
+      border: 2px dashed #ffba00 !important;
+      background-color: #fffbe6;
+    }
+
+    .bordered-btn:hover {
+      background-color: #fff3c1;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .motivation {
+      font-size: 1.1rem;
+      color: #4a3c28;
+      margin-top: 1rem;
+    }
+
+    .waveWrapper {
+      position: relative;
+      height: 200px;
+      margin-top: auto;
+      overflow: hidden;
+    }
+
+    .waveWrapperInner {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .bgTop { z-index: 15; opacity: 0.5; }
+    .bgMiddle { z-index: 10; opacity: 0.75; }
+    .bgBottom { z-index: 5; }
+
+    .wave {
+      position: absolute;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background-repeat: repeat no-repeat;
+      background-position: 0 bottom;
+      transform-origin: center bottom;
+    }
+
+    .waveTop {
+      background-image: url('http://front-end-noobs.com/jecko/img/wave-top.png');
+      background-size: 50% 100px;
+    }
+
+    .waveMiddle {
+      background-image: url('http://front-end-noobs.com/jecko/img/wave-mid.png');
+      background-size: 50% 120px;
+    }
+
+    .waveBottom {
+      background-image: url('http://front-end-noobs.com/jecko/img/wave-bot.png');
+      background-size: 50% 100px;
+    }
+
+    .waveAnimation .waveTop {
+      animation: move_wave 6s linear infinite;
+    }
+
+    .waveAnimation .waveMiddle {
+      animation: move_wave 10s linear infinite;
+    }
+
+    .waveAnimation .waveBottom {
+      animation: move_wave 15s linear infinite;
+    }
+
+    @keyframes move_wave {
+      0% { transform: translateX(0) scaleY(1); }
+      50% { transform: translateX(-25%) scaleY(0.55); }
+      100% { transform: translateX(-50%) scaleY(1); }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .cta-buttons { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏠</div>
+      PGidea
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <select id="language" style="padding: 0.4rem 0.6rem; border-radius: 8px; font-weight: 600; background-color: #fffbe6; border: 2px solid #ffda66;">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+      <a href ="signup.html"><button class="login-btn">Login</button></a>
+    </div>
+  </header>
+
+  <main>
+    <h1>Find Your PG, Flat or Mess — Quickly & Locally</h1>
+    <p class="sub">India’s easiest platform to discover or list PG rooms, flats, and healthy mess services in Durg, Bhilai, Raipur & more.</p>
+    <div class="cta-buttons">
+      <button class="cta-look">🔍 I’m Looking for a Place</button>
+      <a href="signup.html" style="text-decoration:none;"><button class="cta-list bordered-btn">🏠 I Want to List My PG or Mess</button></a>
+    </div>
+    <p class="motivation">We help you settle faster — whether you’re here to study, work, or grow.</p>
+  </main>
+
+  <div class="waveWrapper waveAnimation">
+    <div class="waveWrapperInner bgTop">
+      <div class="wave waveTop"></div>
+    </div>
+    <div class="waveWrapperInner bgMiddle">
+      <div class="wave waveMiddle"></div>
+    </div>
+    <div class="waveWrapperInner bgBottom">
+      <div class="wave waveBottom"></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PGidea - Owner Dashboard</title>
+    <style>
+        /* Mobile-First Base Styles */
+        :root {
+            --bg-color: #FFF7DB;
+            --card-color: #FFFFFF;
+            --accent-color: #F9C80E;
+            --text-color: #333333;
+            --text-light: #777777;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        
+        /* Mobile Layout */
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .logo span {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+        
+        .menu-toggle {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-left: 8px;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Sidebar - Hidden by default on mobile */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100vh;
+            background: white;
+            box-shadow: var(--shadow);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 200;
+            overflow-y: auto;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-header {
+            padding: 0 16px 16px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-close {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: rgba(249, 200, 14, 0.1);
+        }
+        
+        .sidebar-menu li.active {
+            background-color: rgba(249, 200, 14, 0.2);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .sidebar-menu li.disabled {
+            color: var(--text-light);
+            cursor: not-allowed;
+        }
+        
+        .sidebar-menu li span {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .hero p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e6b80d;
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(249, 200, 14, 0.1);
+        }
+        
+        /* Status Cards */
+        .status-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+        
+        .status-card .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .status-card .card-header span {
+            font-size: 24px;
+            margin-right: 12px;
+            color: var(--accent-color);
+        }
+        
+        .status-card h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .status-card p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .status-card .number {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+        
+        /* Empty Listings */
+        .empty-listings {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .empty-listings p {
+            color: var(--text-light);
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+        
+        .add-listing-box {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-listing-box:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(249, 200, 14, 0.05);
+        }
+        
+        .add-listing-box span {
+            font-size: 40px;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        /* Overlay for sidebar */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Tablet and Desktop Styles */
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+            
+            .sidebar {
+                position: relative;
+                left: 0;
+                width: 250px;
+                height: 100vh;
+                box-shadow: none;
+            }
+            
+            .sidebar-header, .sidebar-close {
+                display: none;
+            }
+            
+            .main-content {
+                flex: 1;
+                padding: 20px;
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .overlay {
+                display: none !important;
+            }
+            
+            .action-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .status-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Overlay for mobile sidebar -->
+        <div class="overlay" id="overlay"></div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>🏠</span> PGidea
+                </div>
+                <span class="sidebar-close" id="sidebarClose">&times;</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active">
+                    <span>📊</span> Dashboard
+                </li>
+                <li class="disabled">
+                    <span>🏘️</span> Listings
+                    <small style="margin-left: auto; color: #999;">(Empty)</small>
+                </li>
+                <li>
+                    <span>➕</span> Add Property
+                </li>
+                <li>
+                    <span>👤</span> Profile
+                </li>
+                <li>
+                    <span>🚪</span> Logout
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="menu-toggle" id="menuToggle">
+                    ☰
+                </div>
+                <div class="logo">
+                    <span>🏠</span> PGidea
+                </div>
+                <div class="user-profile">
+                    Welcome, Owner
+                    <div class="user-avatar">O</div>
+                </div>
+            </header>
+            
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1>Hey there 👋 Let's get you started!</h1>
+                <p>Begin your journey with PGidea by adding your first PG or mess service</p>
+                <div class="action-buttons">
+                  <a href="page 2.html">  <button class="btn btn-primary" id="addPG">Add New PG</button></a>
+                    <button class="btn btn-outline" id="addMess">Add Mess Service</button>
+                </div>
+            </section>
+            
+            <!-- Status Cards -->
+            <div class="status-cards">
+                <div class="status-card">
+                    <div class="card-header">
+                        <span>🏠</span>
+                        <div>
+                            <h3>Active Listings</h3>
+                            <p>PGs and mess services you've added</p>
+                        </div>
+                    </div>
+                    <div class="number">0</div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="card-header">
+                        <span>✉️</span>
+                        <div>
+                            <h3>Enquiries Received</h3>
+                            <p>Interested students and professionals</p>
+                        </div>
+                    </div>
+                    <div class="number">0</div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="card-header">
+                        <span>✅</span>
+                        <div>
+                            <h3>Verification Status</h3>
+                            <p>Account verification progress</p>
+                        </div>
+                    </div>
+                    <div class="status">Pending</div>
+                </div>
+            </div>
+            
+            <!-- Empty Listings Section -->
+            <section class="empty-listings">
+                <p>You haven't added any properties yet. Your dashboard will show your listings and activity here once you do.</p>
+                
+                <div class="add-listing-box" id="addListingBox">
+                    <span>➕</span>
+                    <p>Click here to add your first PG or mess listing</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Mobile Sidebar Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const overlay = document.getElementById('overlay');
+        const addPG = document.getElementById('addPG');
+        const addMess = document.getElementById('addMess');
+        const addListingBox = document.getElementById('addListingBox');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        });
+        
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        // Add Property Buttons
+        const showAddModal = (type) => {
+            alert(`Add new ${type} form would open here`);
+        };
+        
+        addPG.addEventListener('click', () => showAddModal('PG'));
+        addMess.addEventListener('click', () => showAddModal('Mess Service'));
+        addListingBox.addEventListener('click', () => showAddModal('property'));
+    </script>
+</body>
+</html>
